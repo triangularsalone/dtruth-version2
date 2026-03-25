@@ -1,0 +1,19 @@
+// Prisma schema for D'Truth
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                       String   @id @default(cuid())
+  email                    String   @unique
+  password                 String
+  emailVerified            Boolean  @default(false)
+  verificationToken        String?  @db.VarChar(255)
+  verificationTokenExpires DateTime?
+  createdAt                DateTime @default(now())
+}

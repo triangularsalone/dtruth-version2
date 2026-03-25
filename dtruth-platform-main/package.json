@@ -1,0 +1,36 @@
+{
+  "name": "dtruth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx @tailwindcss/cli -i ./src/input.css -o ./dist/output.css --watch",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:push": "npx supabase db push",
+    "db:pull": "npx supabase db pull",
+    "db:reset": "npx supabase db reset",
+    "test:rls": "npx tsx scripts/test-rls.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.100.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^1.0.1",
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",    "tsx": "^4.7.0",    "typescript": "^5"
+  
+  }
+}
