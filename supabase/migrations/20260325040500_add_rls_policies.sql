@@ -26,20 +26,15 @@ $$;
 CREATE POLICY "Allow authenticated users to read entries" ON entries FOR
 SELECT TO authenticated USING (true);
 -- Allow super_admin to do all operations on entries
-CREATE POLICY "Allow super_admin full access to entries" ON entries FOR ALL TO authenticated USING (get_current_user_role() = 'Super Admin') WITH CHECK (get_current_user_role() = 'Super Admin');
--- Allow admin to insert/update only Photo category entries
-CREATE POLICY "Allow admin to manage photo entries" ON entries FOR ALL TO authenticated USING (
-    get_current_user_role() = 'Admin'
-    AND category = 'Photo'
+CREATE POLICY "Allow super_admin full access to entries" ON entries FOR ALL TO authenticated USING (get_current_user_role() = 'super_admin') WITH CHECK (get_current_user_role() = 'super_admin');
+-- Allow admin and super_admin to manage entries (all categories) for CRUD operations
+CREATE POLICY "Allow admin and super_admin to manage entries" ON entries FOR ALL TO authenticated USING (
+    get_current_user_role() IN ('admin', 'super_admin')
 ) WITH CHECK (
-    get_current_user_role() = 'Admin'
-    AND category = 'Photo'
+    get_current_user_role() IN ('admin', 'super_admin')
 );
--- Allow admin to delete only Photo category entries
-CREATE POLICY "Allow admin to delete photo entries" ON entries FOR DELETE TO authenticated USING (
-    get_current_user_role() = 'Admin'
-    AND category = 'Photo'
-);
+-- Allow authenticated viewers to read only published entries
+CREATE POLICY "Allow authenticated users to read published entries" ON entries FOR SELECT TO authenticated USING (status = 'Published');
 -- Policies for admins table
 -- Allow super_admin to read all admin records
 CREATE POLICY "Allow super_admin to read admins" ON admins FOR

@@ -1,12 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        setUser(data?.user || null);
+      } catch (error) {
+        console.error("Error checking user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+  }, []);
 
   const isActive = (path: string) => pathname === path;
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/login");
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -25,17 +51,17 @@ export default function Navbar() {
             >
               Home
             </Link>
-            <a
-              href="#vision"
-              className="nav-link"
+            <Link
+              href="/vision"
+              className={`nav-link ${isActive('/vision') ? 'text-indigo-600' : ''}`}
             >
               Vision
-            </a>
+            </Link>
             <a
               href="#innovation"
               className="nav-link"
             >
-              Innovation
+              Innovation for Salvation
             </a>
             <a
               href="#traction"
@@ -44,38 +70,42 @@ export default function Navbar() {
               Traction
             </a>
             <Link
-              href="/innovation-for-salvation"
-              className={`nav-link ${isActive('/innovation-for-salvation') ? 'text-indigo-600' : ''}`}
-            >
-              Innovation for Salvation
-            </Link>
-            <Link
-              href="/traction"
-              className={`nav-link ${isActive('/traction') ? 'text-indigo-600' : ''}`}
-            >
-              Traction
-            </Link>
-            <Link
-              href="/archives"
-              className={`nav-link ${isActive('/archives') ? 'text-indigo-600' : ''}`}
+              href="/archive"
+              className={`nav-link ${isActive('/archive') ? 'text-indigo-600' : ''}`}
             >
               Archives
             </Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
-            >
-              Sign Up
-            </Link>
+            {!loading && (
+              user ? (
+                <>
+                  <span className="text-sm text-slate-600">{user.email}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -89,17 +119,17 @@ export default function Navbar() {
           >
             Home
           </Link>
-          <a
-            href="#vision"
-            className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600"
+          <Link
+            href="/vision"
+            className={`block px-3 py-2 text-base font-medium ${isActive('/vision') ? 'text-indigo-600' : 'text-gray-600 hover:text-indigo-600'}`}
           >
             Vision
-          </a>
+          </Link>
           <a
             href="#innovation"
             className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600"
           >
-            Innovation
+            Innovation for Salvation
           </a>
           <a
             href="#traction"
@@ -108,20 +138,8 @@ export default function Navbar() {
             Traction
           </a>
           <Link
-            href="/innovation-for-salvation"
-            className={`block px-3 py-2 text-base font-medium ${isActive('/innovation-for-salvation') ? 'text-indigo-600' : 'text-gray-600 hover:text-indigo-600'}`}
-          >
-            Innovation for Salvation
-          </Link>
-          <Link
-            href="/traction"
-            className={`block px-3 py-2 text-base font-medium ${isActive('/traction') ? 'text-indigo-600' : 'text-gray-600 hover:text-indigo-600'}`}
-          >
-            Traction
-          </Link>
-          <Link
-            href="/archives"
-            className={`block px-3 py-2 text-base font-medium ${isActive('/archives') ? 'text-indigo-600' : 'text-gray-600 hover:text-indigo-600'}`}
+            href="/archive"
+            className={`block px-3 py-2 text-base font-medium ${isActive('/archive') ? 'text-indigo-600' : 'text-gray-600 hover:text-indigo-600'}`}
           >
             Archives
           </Link>
@@ -131,6 +149,36 @@ export default function Navbar() {
           >
             Admin
           </Link>
+          <div className="pt-2 border-t border-gray-200">
+            {!loading && (
+              user ? (
+                <>
+                  <p className="px-3 py-2 text-sm text-slate-600 font-medium">Logged in as: {user.email}</p>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block px-3 py-2 text-base font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )
+            )}
+          </div>
         </div>
       </div>
     </nav>

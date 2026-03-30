@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { getServerUser } from '@/lib/serverAuth'
 
-export default function ProfilePage() {
-  const user = getServerUser()
+export default async function ProfilePage() {
+  const user = await getServerUser()
   if (!user) redirect('/auth/login')
 
   // @ts-ignore

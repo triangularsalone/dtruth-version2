@@ -41,13 +41,11 @@ CREATE POLICY "Allow authenticated users to read published entries" ON entries F
 SELECT TO authenticated USING (status = 'Published');
 -- Allow super_admin full access
 CREATE POLICY "Allow super_admin full access to entries" ON entries FOR ALL TO authenticated USING (get_current_user_role() = 'super_admin') WITH CHECK (get_current_user_role() = 'super_admin');
--- Allow admin to manage photo entries only
-CREATE POLICY "Allow admin to manage photo entries" ON entries FOR ALL TO authenticated USING (
-    get_current_user_role() = 'admin'
-    AND category = 'Photo'
+-- Allow admin and super_admin to manage all entry categories
+CREATE POLICY "Allow admin and super_admin to manage entries" ON entries FOR ALL TO authenticated USING (
+    get_current_user_role() IN ('admin', 'super_admin')
 ) WITH CHECK (
-    get_current_user_role() = 'admin'
-    AND category = 'Photo'
+    get_current_user_role() IN ('admin', 'super_admin')
 );
 -- RLS Policies for profiles table
 -- Allow users to read their own profile

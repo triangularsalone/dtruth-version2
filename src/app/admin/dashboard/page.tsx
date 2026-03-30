@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import type { UserResponse } from '@supabase/supabase-js'
 
 type UserRole = "super_admin" | "admin" | "viewer"
 
@@ -12,7 +13,7 @@ type Entry = {
   title: string
   description?: string
   content?: string
-  category?: "innovation" | "traction" | "archives"
+  category?: "innovation" | "traction" | "archives" | "Document" | "Video" | "Photo" | "Report"
   status?: "Published" | "Pending" | "Archived"
   media_url?: string
   external_link?: string
@@ -43,7 +44,7 @@ export default function Dashboard() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [content, setContent] = useState("")
-  const [entryCategory, setEntryCategory] = useState<"innovation" | "traction" | "archives">("archives")
+  const [entryCategory, setEntryCategory] = useState<"innovation" | "traction" | "archives" | "Document" | "Video" | "Photo" | "Report">("archives")
   const [entryStatus, setEntryStatus] = useState<"Published" | "Pending" | "Archived">("Pending")
   const [mediaUrl, setMediaUrl] = useState("")
   const [mediaFile, setMediaFile] = useState<File | null>(null)
@@ -110,7 +111,7 @@ export default function Dashboard() {
 
   const checkUser = async () => {
     try {
-      const tryGetUser = async (retries = 3) => {
+      const tryGetUser = async (retries = 3): Promise<UserResponse> => {
         for (let i = 0; i < retries; i++) {
           try {
             return await supabase.auth.getUser()
@@ -120,6 +121,7 @@ export default function Dashboard() {
             await new Promise((r) => setTimeout(r, 200))
           }
         }
+        throw new Error('Failed to get user after retries')
       }
 
       const { data } = await tryGetUser()
@@ -139,13 +141,17 @@ export default function Dashboard() {
   }
 
   const loadEntries = async () => {
+    setIsActionLoading(true)
     try {
       const { data, error } = await supabase
         .from("entries")
         .select("id, title, description, content, category, status, media_url, external_link, uploaded_by, created_at, updated_at")
         .order("created_at", { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
+
       const mappedEntries = (data || []).map((entry: any) => ({
         ...entry,
         category: entry.category || "archives",
@@ -157,7 +163,23 @@ export default function Dashboard() {
       setEntries(mappedEntries as Entry[])
     } catch (err: any) {
       console.error("Unable to load entries:", err)
-      setActionError(err.message || "Unable to load entries")
+
+      let errorMessage = "Unable to load entries"
+      if (!err) {
+        errorMessage = "Unable to load entries: unknown error"
+      } else if (typeof err === "string") {
+        errorMessage = err
+      } else if (err.message) {
+        errorMessage = err.message
+      } else if (err.error) {
+        errorMessage = typeof err.error === "string" ? err.error : JSON.stringify(err.error)
+      } else {
+        errorMessage = JSON.stringify(err)
+      }
+
+      setActionError(errorMessage)
+    } finally {
+      setIsActionLoading(false)
     }
   }
 
@@ -345,7 +367,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm font-semibold text-indigo-600">Dashboard Overview</p>
                   <h2 className="text-2xl font-bold text-slate-900">Government Documentation Platform</h2>
-                  <p className="text-xs text-slate-500">Welcome, {user?.fullName}</p>
+                  <p className="text-xs text-slate-500">Welcome, {user?.email}</p>
                 </div>
                 <button
                   onClick={() => document.getElementById("actionForm")?.scrollIntoView({ behavior: "smooth" })}
@@ -596,7 +618,7 @@ export default function Dashboard() {
                     <textarea
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 min-h-[120px]"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 min-h-30"
                       placeholder="Document details and notes"
                     />
                   </div>

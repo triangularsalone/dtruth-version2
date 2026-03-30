@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const ok = await bcrypt.compare(password, user.password)
     if (!ok) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
 
-    const token = signToken({ userId: user.id, email: user.email })
+    const token = await signToken({ userId: user.id, email: user.email, role: user.role })
 
     const cookie = serialize('token', token, {
       httpOnly: true,

@@ -1,18 +1,22 @@
-import jwt from 'jsonwebtoken'
+import { SignJWT, jwtVerify } from 'jose'
 
-const { JWT_SECRET } = process.env
-if (!JWT_SECRET) console.warn('Missing JWT_SECRET environment variable')
+const secret = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-super-secret-key-change-in-production'
+)
 
-export function signToken(payload: object, expiresIn = '7d') {
-  return jwt.sign(payload, JWT_SECRET as string, { expiresIn })
+export const signToken = async (payload: Record<string, unknown>, expiresIn = '7d'): Promise<string> => {
+  const jwt = await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime(expiresIn)
+    .sign(secret)
+  return jwt
 }
 
-export function verifyToken(token: string) {
+export const verifyToken = async (token: string): Promise<Record<string, unknown> | null> => {
   try {
-    return jwt.verify(token, JWT_SECRET as string)
-  } catch (err) {
+    const verified = await jwtVerify(token, secret)
+    return verified.payload as Record<string, unknown>
+  } catch {
     return null
   }
 }
-
-export default { signToken, verifyToken }

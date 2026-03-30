@@ -1,4 +1,4 @@
-import sendgrid from '@sendgrid/mail'
+// import sendgrid from '@sendgrid/mail'
 
 const { SENDGRID_API_KEY, EMAIL_FROM, NEXT_PUBLIC_BASE_URL } = process.env
 
@@ -6,9 +6,13 @@ if (!SENDGRID_API_KEY || !EMAIL_FROM || !NEXT_PUBLIC_BASE_URL) {
   console.warn('Missing SendGrid env vars. Verification emails will fail until configured.')
 }
 
-sendgrid.setApiKey(SENDGRID_API_KEY || '')
+// sendgrid.setApiKey(SENDGRID_API_KEY || '')
 
 export async function sendVerificationEmail(email: string, token: string) {
+  // Using Supabase SMTP system instead
+  console.log(`Verification email would be sent to ${email} with token ${token}`)
+  // Implement with nodemailer and Supabase SMTP if needed
+}
   const verifyUrl = `${NEXT_PUBLIC_BASE_URL}/verify-email?token=${encodeURIComponent(token)}`
 
   const html = `
