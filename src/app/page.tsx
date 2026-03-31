@@ -1,8 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import Navbar from "@/components/Navbar"
+import ArchiveCard from "@/components/ArchiveCard"
+import HeroText from "@/components/HeroText"
+import LeadershipSection from "@/components/LeadershipSection"
+import CallToActionSection from "@/components/CallToActionSection"
 import { supabase } from "@/lib/supabase"
 
 type Entry = {
@@ -15,214 +18,163 @@ type Entry = {
 }
 
 export default function Home() {
-  const router = useRouter()
-  const [isUserLoading, setIsUserLoading] = useState(true)
+  const [entries, setEntries] = useState<Entry[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const checkUser = async () => {
+    const loadEntries = async () => {
+      setLoading(true)
       try {
-        const { data } = await supabase.auth.getUser()
-        if (!data.user) {
-          router.push("/login")
-        } else {
-          setIsUserLoading(false)
-        }
+        const { data, error } = await supabase
+          .from("entries")
+          .select("id, title, description, category, media_url, created_at")
+          .eq("status", "Published")
+          .order("created_at", { ascending: false })
+          .limit(4)
+
+        if (error) throw error
+        setEntries(data || [])
       } catch (error) {
-        console.error("Error checking user:", error)
-        router.push("/login")
+        console.error("Unable to load archive preview:", error)
+      } finally {
+        setLoading(false)
       }
     }
 
-    checkUser()
-  }, [router])
+    loadEntries()
+  }, [])
 
-  if (isUserLoading) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+  const getFileType = (url?: string) => {
+    if (!url) return undefined
+    return url.split(".").pop()?.toLowerCase()
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-indigo-50">
+    <div className="min-h-screen bg-slate-950 text-white">
       <Navbar />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div
-            className="h-full w-full bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: "url('/IMG-20260327-WA0027.jpg')",
-            }}
-          />
-          <div className="absolute inset-0 bg-slate-950/55"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36">
-          <div className="text-center">
-            <p className="text-sm uppercase tracking-[0.3em] text-indigo-200 mb-6">
-              LEAP official documentation
-            </p>
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Preserving the Journey of <span className="text-indigo-300">LEAP</span> Since 2010
-            </h1>
-            <p className="text-lg sm:text-xl text-indigo-100 max-w-3xl mx-auto mb-10 leading-relaxed">
-              D&apos;Truth is the official platform for LEAP&apos;s stories, media, milestones, and impact.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a href="/archive" className="btn-primary text-lg px-8 py-4">
-                Explore Archive
-              </a>
-              <a href="/vision" className="btn-secondary text-lg px-8 py-4">
-                Learn Our Vision
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            A single place for LEAP&apos;s story
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
-            The archive holds every published document, photo, video, and report. Home now stays focused while the archive page keeps the media and data in one place.
-          </p>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Complete Archive</h3>
-              <p className="text-gray-600">
-                All published LEAP media and documents are stored in one dedicated place.
+      <section className="relative overflow-hidden bg-slate-950 pb-24">
+        <div className="absolute inset-0 bg-slate-950/80" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr] lg:items-center">
+            <div className="space-y-8">
+              <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/80">
+                Official Archive
               </p>
-            </div>
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Dedicated Vision</h3>
-              <p className="text-gray-600">
-                Our mission, movements, and reach are now presented on a separate vision page with an explanatory video.
+              <HeroText />
+              <p className="max-w-2xl text-lg text-slate-200 leading-relaxed">
+                Explore LEAP’s documents, photos, videos, and reports through a modern archive preview designed to highlight your latest impact.
               </p>
-            </div>
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Clear Impact</h3>
-              <p className="text-gray-600">
-                LEAP progress is shown through innovation highlights and measurable traction.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="innovation" className="py-20 sm:py-32 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Innovation For Salvation
-            </h2>
-            <div className="w-24 h-1 bg-indigo-600 mx-auto mb-6"></div>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Pioneering solutions that create lasting positive change
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href="/innovation-for-salvation"
+                  className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-8 py-4 text-base font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 hover:bg-cyan-400 transition-colors duration-200"
+                >
+                  Explore Innovation
+                </a>
+                <a
+                  href="/archive"
+                  className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white hover:bg-white/15 transition-colors duration-200"
+                >
+                  View Full Archive
+                </a>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Technological Innovation</h3>
-              <p className="text-gray-600">
-                Leveraging cutting-edge technology to solve complex challenges and create efficient systems.
-              </p>
             </div>
 
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+            <div className="rounded-4xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/90">Latest entries</p>
+                  <h2 className="text-2xl font-semibold text-white mt-2">Preview the newest archive posts</h2>
+                </div>
+                <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-semibold uppercase text-cyan-100">
+                  Latest 4
+                </span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Community Impact</h3>
-              <p className="text-gray-600">
-                Building strong communities through inclusive programs and collaborative initiatives.
+              <p className="text-sm text-slate-300 mb-8">
+                Only the newest documents, images, and videos appear here so visitors can get a clean taste of the archive.
               </p>
-            </div>
-
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="space-y-4">
+                {loading ? (
+                  <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-10 text-center text-slate-300">
+                    Loading preview...
+                  </div>
+                ) : entries.length === 0 ? (
+                  <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-10 text-center text-slate-300">
+                    No archive entries are available yet.
+                  </div>
+                ) : (
+                  entries.map((entry) => (
+                    <div key={entry.id} className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
+                      <div className="flex items-start gap-4">
+                        <div className="shrink-0">
+                          <div className="h-14 w-14 rounded-3xl bg-cyan-500/10 flex items-center justify-center text-cyan-300">
+                            <span className="text-xl font-semibold">{entry.title?.slice(0, 1)}</span>
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-base font-semibold text-white truncate">{entry.title}</h3>
+                          <p className="text-sm text-slate-300 line-clamp-2">
+                            {entry.description || "A fresh archive item waiting to be explored."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Sustainable Solutions</h3>
-              <p className="text-gray-600">
-                Creating long-term, sustainable frameworks that continue to benefit society for generations.
-              </p>
             </div>
           </div>
         </div>
       </section>
-      <section id="traction" className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Traction & Impact
-            </h2>
-            <div className="w-24 h-1 bg-indigo-600 mx-auto mb-6"></div>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Measurable results and growing influence in our mission areas
+
+      <section className="bg-slate-50 py-16 text-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="text-sm uppercase tracking-[0.3em] text-indigo-600 mb-3">
+              Official Archive
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold">Explore LEAP’s documents, photos, videos and reports.</h2>
+            <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+              Only the latest 4 items are shown here so visitors can quickly see what the archive contains.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">15+</div>
-              <div className="text-gray-600">Years of Service</div>
+          {loading ? (
+            <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center text-slate-500">
+              Loading archive preview...
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">1000+</div>
-              <div className="text-gray-600">Lives Impacted</div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {entries.map((entry) => (
+                <ArchiveCard
+                  key={entry.id}
+                  id={entry.id}
+                  title={entry.title}
+                  description={entry.description}
+                  date={entry.created_at ? new Date(entry.created_at).toLocaleDateString() : "N/A"}
+                  category={entry.category}
+                  fileType={getFileType(entry.media_url)}
+                  mediaUrl={entry.media_url}
+                  onView={() => window.open(entry.media_url || "/archive", "_blank")}
+                />
+              ))}
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">50+</div>
-              <div className="text-gray-600">Projects Completed</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">25+</div>
-              <div className="text-gray-600">Partner Organizations</div>
-            </div>
-          </div>
-        </div>
-      </section>
+          )}
 
-
-      {/* CTA */}
-      <section className="py-20 sm:py-32 bg-indigo-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-            Join Our Mission
-          </h2>
-          <p className="text-xl text-indigo-100 mb-8">
-            Be part of LEAP's ongoing journey of innovation and community impact.
-          </p>
-          <div className="flex justify-center">
+          <div className="mt-10 flex justify-center">
             <a
               href="/archive"
-              className="inline-block border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-indigo-600 transition-colors duration-200"
+              className="inline-flex items-center justify-center rounded-full bg-slate-950 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-slate-950/20 hover:bg-slate-800 transition-colors duration-200"
             >
-              Explore Archive
+              View Full Archive →
             </a>
           </div>
         </div>
       </section>
+
+      <LeadershipSection />
+      <CallToActionSection />
     </div>
   )
 }
