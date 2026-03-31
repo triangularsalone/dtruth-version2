@@ -100,8 +100,8 @@ export default function InnovationForSalvation() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {entries.map((entry) => (
-              <div key={entry.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <div className="aspect-video bg-gray-200">
+              <div key={entry.id} className="bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+                <div className="aspect-video bg-gray-200 overflow-hidden">
                   {getMediaPreview(entry)}
                 </div>
                 <div className="p-6">

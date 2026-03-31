@@ -105,6 +105,7 @@ export default function Archive() {
                 date={entry.created_at ? new Date(entry.created_at).toLocaleDateString() : "N/A"}
                 category={entry.category}
                 fileType={getFileType(entry.media_url)}
+                mediaUrl={entry.media_url}
                 onView={() => window.open(entry.media_url || "#", "_blank")}
               />
             ))}

@@ -5,11 +5,15 @@ interface ArchiveCardProps {
   date: string;
   category?: string;
   fileType?: string;
+  mediaUrl?: string;
   fileSize?: string;
   onView?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
 }
+
+const isImageUrl = (url?: string) => !!url && /\.(png|jpe?g|gif|webp|avif|svg)(\?.*)?$/i.test(url)
+const isVideoUrl = (url?: string) => !!url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url)
 
 export default function ArchiveCard({
   id,
@@ -18,6 +22,7 @@ export default function ArchiveCard({
   date,
   category,
   fileType,
+  mediaUrl,
   fileSize,
   onView,
   onEdit,
@@ -42,6 +47,8 @@ export default function ArchiveCard({
       case 'jpeg':
       case 'png':
       case 'gif':
+      case 'webp':
+      case 'avif':
         return (
           <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -56,8 +63,41 @@ export default function ArchiveCard({
     }
   };
 
+  const renderMediaPreview = () => {
+    if (!mediaUrl) return null;
+
+    if (isVideoUrl(mediaUrl)) {
+      return (
+        <div className="mb-4 overflow-hidden rounded-3xl bg-slate-950">
+          <video
+            src={mediaUrl}
+            controls
+            className="w-full h-56 object-cover rounded-3xl"
+          />
+        </div>
+      );
+    }
+
+    if (isImageUrl(mediaUrl)) {
+      return (
+        <div className="mb-4 overflow-hidden rounded-3xl bg-slate-100">
+          <img
+            src={mediaUrl}
+            alt={title}
+            className="w-full h-56 object-cover rounded-3xl"
+          />
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const displayDate = isNaN(Date.parse(date)) ? date : new Date(date).toLocaleDateString();
+
   return (
-    <div className="card group hover:shadow-lg transition-all duration-200">
+    <div className="card group hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+      {renderMediaPreview()}
       <div className="flex items-start space-x-4">
         <div className="shrink-0">
           {getFileIcon(fileType)}
@@ -75,48 +115,11 @@ export default function ArchiveCard({
                 </p>
               )}
             </div>
-
-            <div className="flex items-center space-x-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              {onView && (
-                <button
-                  onClick={onView}
-                  className="p-1 text-gray-400 hover:text-indigo-600 transition-colors"
-                  title="View"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </button>
-              )}
-              {onEdit && (
-                <button
-                  onClick={onEdit}
-                  className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                  title="Edit"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  onClick={onDelete}
-                  className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                  title="Delete"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              )}
-            </div>
           </div>
 
-          <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
-            <div className="flex items-center space-x-4">
-              <span>{new Date(date).toLocaleDateString()}</span>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-500">
+            <div className="flex items-center flex-wrap gap-2">
+              <span>{displayDate}</span>
               {category && (
                 <>
                   <span>•</span>
@@ -132,6 +135,17 @@ export default function ArchiveCard({
               </span>
             )}
           </div>
+
+          {onView && (
+            <div className="mt-4">
+              <button
+                onClick={onView}
+                className="inline-flex items-center justify-center rounded-md bg-indigo-600 text-white text-sm font-medium px-4 py-2 hover:bg-indigo-700 transition-colors"
+              >
+                View
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
