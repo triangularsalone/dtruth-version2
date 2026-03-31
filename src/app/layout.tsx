@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "D'Truth - LEAP Documentation Platform",
-  description: "Preserving the Journey of LEAP Since 2010",
+  title: "D'Truth - LEAP MOVEMENT FOR ALL Documentation Platform",
+  description: "Preserving the Journey of LEAP MOVEMENT FOR ALL Since 2010",
 };
 
 export default function RootLayout({

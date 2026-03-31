@@ -28,7 +28,7 @@ export default function AdminSidebar() {
       <div className="px-6 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-indigo-800">D&apos;Truth</h1>
-          <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">LEAP archives</p>
+          <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">LEAP MOVEMENT FOR ALL archives</p>
         </div>
 
         <nav className="space-y-2">

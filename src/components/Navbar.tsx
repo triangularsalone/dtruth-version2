@@ -169,13 +169,6 @@ export default function Navbar() {
             >
               Archives
             </Link>
-            <Link
-              href="/admin/login"
-              onClick={closeMobileMenu}
-              className={`block px-3 py-2 text-base font-medium ${isActive('/admin/login') || isActive('/admin/dashboard') ? 'text-indigo-600' : 'text-gray-600 hover:text-indigo-600'}`}
-            >
-              Admin
-            </Link>
             <div className="pt-2 border-t border-gray-200">
               {!loading && (
                 user ? (

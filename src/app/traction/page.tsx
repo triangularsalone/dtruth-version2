@@ -84,7 +84,7 @@ export default function Traction() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Traction</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Measurable results and growing influence in our mission areas, showcasing the impact and progress of LEAP initiatives.
+            Measurable results and growing influence in our mission areas, showcasing the impact and progress of LEAP MOVEMENT FOR ALL initiatives.
           </p>
         </div>
 

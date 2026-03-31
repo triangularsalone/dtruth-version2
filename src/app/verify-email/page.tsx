@@ -12,29 +12,41 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     const handleEmailVerification = async () => {
       try {
-        // Handle the auth callback from Supabase
-        const { data, error } = await supabase.auth.getSession()
+        // Try to process the Supabase auth callback from the URL first.
+        const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true })
 
         if (error) {
-          setStatus('error')
-          setMessage('Verification failed. The link may be invalid or expired.')
-          return
+          console.warn('Supabase callback parse error:', error)
         }
 
-        if (data.session?.user) {
+        const session = data?.session
+
+        if (!session) {
+          // Fallback to any existing session if callback did not provide one.
+          const { data: currentSession, error: sessionError } = await supabase.auth.getSession()
+          if (sessionError) {
+            throw sessionError
+          }
+          if (currentSession.session?.user) {
+            setStatus('success')
+            setMessage('Email verified successfully! You can now log in.')
+          } else {
+            setStatus('error')
+            setMessage('Unable to verify email. Please try logging in or request a new verification email.')
+            return
+          }
+        } else {
           setStatus('success')
           setMessage('Email verified successfully! You can now log in.')
-          // Redirect to login after a delay
-          setTimeout(() => {
-            router.push('/login?message=Email verified successfully!')
-          }, 3000)
-        } else {
-          setStatus('error')
-          setMessage('Unable to verify email. Please try logging in or request a new verification email.')
         }
-      } catch (err) {
+
+        setTimeout(() => {
+          router.push('/login?message=Email verified successfully!')
+        }, 3000)
+      } catch (err: any) {
+        console.error('Email verification error:', err)
         setStatus('error')
-        setMessage('An error occurred during verification.')
+        setMessage(err?.message || 'An error occurred during verification.')
       }
     }
 
