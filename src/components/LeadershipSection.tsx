@@ -5,9 +5,15 @@ export default function LeadershipSection() {
     <section className="bg-white py-20 text-slate-900">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
+<<<<<<< HEAD
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">The Team</h2>
           <p className="mt-4 text-lg text-slate-600">
             Meet the people driving the vision.
+=======
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Leadership</h2>
+          <p className="mt-4 text-lg text-slate-600">
+            Meet the people driving the vision and innovation.
+>>>>>>> 77539801561a1f4a791a524d6441d7ebb1e9e6d9
           </p>
         </div>
 
@@ -24,7 +30,11 @@ export default function LeadershipSection() {
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-cyan-600">Team Highlight</p>
               <h3 className="mt-3 text-3xl font-semibold text-slate-900">Lead Consultant</h3>
+<<<<<<< HEAD
               <p className="mt-2 text-sm font-medium uppercase text-slate-500">Leader of LEAP MOVEMENT FOR ALL</p>
+=======
+              <p className="mt-2 text-sm font-medium uppercase text-slate-500">Leader of LEAP</p>
+>>>>>>> 77539801561a1f4a791a524d6441d7ebb1e9e6d9
             </div>
             <p className="text-base leading-7 text-slate-600">
               Providing strategic leadership and guiding innovation initiatives that create meaningful community impact.
