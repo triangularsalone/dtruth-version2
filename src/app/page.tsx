@@ -54,7 +54,10 @@ export default function Home() {
       <Navbar />
 
       <section className="relative overflow-hidden bg-slate-950 pb-24">
-        <div className="absolute inset-0 bg-slate-950/80" />
+        <div className="absolute inset-0">
+          <div className="h-full w-full bg-cover bg-center bg-no-repeat bg-[url('/IMG-20260327-WA0027.jpg')]" />
+          <div className="absolute inset-0 bg-slate-950/80" />
+        </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr] lg:items-center">
             <div className="space-y-8">
