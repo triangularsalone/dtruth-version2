@@ -63,11 +63,7 @@ export default function Home() {
               </p>
               <HeroText />
               <p className="max-w-2xl text-lg text-slate-200 leading-relaxed">
-<<<<<<< HEAD
                 Explore LEAP MOVEMENT FOR ALL’s documents, photos, videos, and reports through a modern archive preview designed to highlight your latest impact.
-=======
-                Explore LEAP’s documents, photos, videos, and reports through a modern archive preview designed to highlight your latest impact.
->>>>>>> 77539801561a1f4a791a524d6441d7ebb1e9e6d9
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
@@ -96,11 +92,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-sm text-slate-300 mb-8">
-<<<<<<< HEAD
-                Lastestes Uploads.
-=======
                 Only the newest documents, images, and videos appear here so visitors can get a clean taste of the archive.
->>>>>>> 77539801561a1f4a791a524d6441d7ebb1e9e6d9
               </p>
               <div className="space-y-4">
                 {loading ? (
@@ -142,11 +134,7 @@ export default function Home() {
             <p className="text-sm uppercase tracking-[0.3em] text-indigo-600 mb-3">
               Official Archive
             </p>
-<<<<<<< HEAD
-            <h2 className="text-3xl md:text-4xl font-bold">Explore LEAP MOVEMENT FOR ALL’s documents, photos, videos and reports.</h2>
-=======
             <h2 className="text-3xl md:text-4xl font-bold">Explore LEAP’s documents, photos, videos and reports.</h2>
->>>>>>> 77539801561a1f4a791a524d6441d7ebb1e9e6d9
             <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
               Only the latest 4 items are shown here so visitors can quickly see what the archive contains.
             </p>

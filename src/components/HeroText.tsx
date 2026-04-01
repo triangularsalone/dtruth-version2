@@ -3,13 +3,8 @@
 import { useEffect, useState } from "react"
 
 const phrases = [
-<<<<<<< HEAD
-  "LEAP MOVEMENT FOR ALL!!",
-  "Providing Solutions with Precison",
-=======
   "Truth that inspires innovation",
   "Innovation that transforms communities",
->>>>>>> 77539801561a1f4a791a524d6441d7ebb1e9e6d9
   "Solutions built for real impact",
   "Technology serving humanity",
 ]
