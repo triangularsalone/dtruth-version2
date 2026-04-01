@@ -40,9 +40,9 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-4">
-            <Link href="/" onClick={closeMobileMenu} className="text-2xl font-bold text-indigo-700 hover:text-indigo-800 transition-colors">
+        <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+          <div className="flex items-center flex-1 min-w-0 space-x-4">
+            <Link href="/" onClick={closeMobileMenu} className="text-2xl font-bold text-indigo-700 hover:text-indigo-800 transition-colors whitespace-nowrap">
               D&apos;Truth
             </Link>
             <button
@@ -65,40 +65,40 @@ export default function Navbar() {
             </button>
           </div>
 
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex flex-1 flex-wrap items-center justify-center gap-4 min-w-0">
             <Link
               href="/"
-              className={`nav-link ${isActive('/') ? 'text-indigo-600' : ''}`}
+              className={`nav-link max-w-56 truncate ${isActive('/') ? 'text-indigo-600' : ''}`}
             >
               Home
             </Link>
             <Link
               href="/vision"
-              className={`nav-link ${isActive('/vision') ? 'text-indigo-600' : ''}`}
+              className={`nav-link max-w-56 truncate ${isActive('/vision') ? 'text-indigo-600' : ''}`}
             >
               Vision
             </Link>
             <Link
               href="/#innovation"
-              className="nav-link"
+              className="nav-link max-w-56 truncate"
             >
               Innovation for Salvation
             </Link>
             <Link
-              href="/#traction"
-              className="nav-link"
+              href="/traction"
+              className="nav-link max-w-56 truncate"
             >
               Traction
             </Link>
             <Link
               href="/archive"
-              className={`nav-link ${isActive('/archive') ? 'text-indigo-600' : ''}`}
+              className={`nav-link max-w-56 truncate ${isActive('/archive') ? 'text-indigo-600' : ''}`}
             >
               Archives
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center shrink-0 flex-wrap gap-3">
             {!loading && (
               user ? (
                 <>
@@ -156,7 +156,7 @@ export default function Navbar() {
               Innovation for Salvation
             </Link>
             <Link
-              href="/#traction"
+              href="/traction"
               onClick={closeMobileMenu}
               className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600"
             >

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 const phrases = [
   "Truth that inspires innovation",
   "Innovation that transforms communities",
-  "Solutions built for real impact",
+  "Solutions with Precision",
   "Technology serving humanity",
 ]
 

@@ -92,7 +92,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-sm text-slate-300 mb-8">
-                Only the newest documents, images, and videos appear here so visitors can get a clean taste of the archive.
+                We unveil facts and make sure you're aware of what's going on.
               </p>
               <div className="space-y-4">
                 {loading ? (

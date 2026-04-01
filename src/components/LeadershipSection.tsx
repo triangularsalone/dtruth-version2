@@ -5,7 +5,7 @@ export default function LeadershipSection() {
     <section className="bg-white py-20 text-slate-900">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Leadership</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">The Team</h2>
           <p className="mt-4 text-lg text-slate-600">
             Meet the people driving the vision and innovation.
           </p>
@@ -36,7 +36,7 @@ export default function LeadershipSection() {
               </div>
               <div className="rounded-3xl bg-white p-5 text-center shadow-sm shadow-slate-200/50">
                 <p className="text-sm text-slate-500">Focus Area</p>
-                <p className="mt-2 text-xl font-semibold text-slate-900">Community Innovation</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">Human|Economic & Infrastructural Development</p>
               </div>
             </div>
           </div>
