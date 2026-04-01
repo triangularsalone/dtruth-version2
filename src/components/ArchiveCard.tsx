@@ -72,7 +72,7 @@ export default function ArchiveCard({
           <video
             src={mediaUrl}
             controls
-            className="w-full h-56 object-cover rounded-3xl"
+            className="w-full h-48 sm:h-56 object-cover rounded-3xl"
           />
         </div>
       );
@@ -84,7 +84,7 @@ export default function ArchiveCard({
           <img
             src={mediaUrl}
             alt={title}
-            className="w-full h-56 object-cover rounded-3xl"
+            className="w-full h-48 sm:h-56 object-cover rounded-3xl"
           />
         </div>
       );
@@ -96,7 +96,7 @@ export default function ArchiveCard({
   const displayDate = isNaN(Date.parse(date)) ? date : new Date(date).toLocaleDateString();
 
   return (
-    <div className="card group hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+    <div className="card group hover:shadow-lg transition-all duration-200 h-full flex flex-col overflow-hidden">
       {renderMediaPreview()}
       <div className="flex items-start space-x-4">
         <div className="shrink-0">
@@ -106,11 +106,11 @@ export default function ArchiveCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
+              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors break-words line-clamp-2 overflow-hidden">
                 {title}
               </h3>
               {description && (
-                <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                <p className="text-gray-600 text-sm mt-1 line-clamp-3 break-words overflow-hidden">
                   {description}
                 </p>
               )}
