@@ -40,8 +40,8 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 py-3">
-          <div className="flex items-center flex-1 min-w-0 space-x-4">
+        <div className="flex items-center justify-between gap-3 py-3">
+          <div className="flex items-center justify-between w-full md:w-auto">
             <Link href="/" onClick={closeMobileMenu} className="text-2xl font-bold text-indigo-700 hover:text-indigo-800 transition-colors whitespace-nowrap">
               D&apos;Truth
             </Link>
@@ -65,7 +65,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          <div className="hidden md:flex flex-1 flex-wrap items-center justify-center gap-4 min-w-0">
+          <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             <Link
               href="/"
               className={`nav-link max-w-56 truncate ${isActive('/') ? 'text-indigo-600' : ''}`}
@@ -98,7 +98,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center shrink-0 flex-wrap gap-3">
+          <div className="hidden md:flex items-center gap-3">
             {!loading && (
               user ? (
                 <>

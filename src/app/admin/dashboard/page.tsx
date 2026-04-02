@@ -36,6 +36,8 @@ export default function Dashboard() {
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>("viewer")
 
   const [entries, setEntries] = useState<Entry[]>([])
+  const [pendingEntriesCount, setPendingEntriesCount] = useState(0)
+  const [notificationMessage, setNotificationMessage] = useState("")
 
   const [users, setUsers] = useState<UserRow[]>([])
   const [loadingUsers, setLoadingUsers] = useState(false)
@@ -183,12 +185,53 @@ export default function Dashboard() {
     }
   }
 
+  const loadNotificationCounts = async () => {
+    try {
+      const { count, error } = await supabase
+        .from("entries")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "Pending")
+
+      if (!error) {
+        setPendingEntriesCount(count || 0)
+      }
+    } catch (err) {
+      console.error("Unable to load pending entry count:", err)
+    }
+  }
+
   useEffect(() => {
     checkUser()
   }, [router])
 
   useEffect(() => {
-    if (user) loadEntries()
+    if (user) {
+      loadEntries()
+      loadNotificationCounts()
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+
+    const channel = supabase
+      .channel("admin-notifications")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "entries" },
+        (payload) => {
+          setPendingEntriesCount((current) => current + 1)
+          setNotificationMessage(
+            `New entry received${payload.new?.title ? `: ${payload.new.title}` : ""}`
+          )
+          window.setTimeout(() => setNotificationMessage(""), 8000)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      channel.unsubscribe()
+    }
   }, [user])
 
   useEffect(() => {
@@ -291,6 +334,7 @@ export default function Dashboard() {
         setActionMessage("Entry created successfully.")
       }
       await loadEntries()
+      await loadNotificationCounts()
       resetForm()
     } catch (err: any) {
       setActionError(err.message || "Unable to save entry")
@@ -314,6 +358,7 @@ export default function Dashboard() {
       setActionMessage("Entry deleted successfully.")
       if (selectedEntryId === id) resetForm()
       await loadEntries()
+      await loadNotificationCounts()
     } catch (err: any) {
       setActionError(err.message || "Unable to delete entry")
     } finally {
@@ -380,6 +425,18 @@ export default function Dashboard() {
 
             {/* Content */}
             <main className="p-4 max-w-7xl mx-auto space-y-6">
+              {notificationMessage ? (
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 mb-4">
+                  {notificationMessage}
+                </div>
+              ) : null}
+
+              {pendingEntriesCount > 0 ? (
+                <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800 mb-4">
+                  There are {pendingEntriesCount} pending entries awaiting review.
+                </div>
+              ) : null}
+
               {/* Metrics cards */}
               <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {[{
