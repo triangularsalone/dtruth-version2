@@ -22,6 +22,15 @@ type Entry = {
   updated_at?: string
 }
 
+type PartnershipRequest = {
+  id: string
+  name: string
+  email: string
+  organization?: string
+  message?: string
+  created_at?: string
+}
+
 type UserRow = {
   id: string
   email: string
@@ -37,6 +46,8 @@ export default function Dashboard() {
 
   const [entries, setEntries] = useState<Entry[]>([])
   const [pendingEntriesCount, setPendingEntriesCount] = useState(0)
+  const [partnershipRequests, setPartnershipRequests] = useState<PartnershipRequest[]>([])
+  const [partnershipRequestsCount, setPartnershipRequestsCount] = useState(0)
   const [notificationMessage, setNotificationMessage] = useState("")
 
   const [users, setUsers] = useState<UserRow[]>([])
@@ -185,6 +196,25 @@ export default function Dashboard() {
     }
   }
 
+  const loadPartnershipRequests = async () => {
+    try {
+      const { data, count, error } = await supabase
+        .from("partnership_requests")
+        .select("id, name, email, organization, message, created_at", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .limit(10)
+
+      if (error) {
+        throw error
+      }
+
+      setPartnershipRequests((data as PartnershipRequest[]) || [])
+      setPartnershipRequestsCount(count || 0)
+    } catch (err: any) {
+      console.error("Unable to load partnership requests:", err)
+    }
+  }
+
   const loadNotificationCounts = async () => {
     try {
       const { count, error } = await supabase
@@ -208,6 +238,7 @@ export default function Dashboard() {
     if (user) {
       loadEntries()
       loadNotificationCounts()
+      loadPartnershipRequests()
     }
   }, [user])
 
@@ -452,6 +483,10 @@ export default function Dashboard() {
                   value: totalPhotos,
                   info: "Image records"
                 }, {
+                  label: "Partnership Requests",
+                  value: partnershipRequestsCount,
+                  info: "Recent partnership interest"
+                }, {
                   label: "Latest Uploads",
                   value: latestUploads.length,
                   info: "Recent items"
@@ -510,6 +545,48 @@ export default function Dashboard() {
                   </div>
                 </section>
               )}
+
+              <section className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Latest Partnership Requests</h3>
+                    <p className="text-sm text-slate-500">Showing the most recent partnership inquiries submitted through the site.</p>
+                  </div>
+                  <span className="text-sm text-slate-500">Total requests: {partnershipRequestsCount}</span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Organization</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Submitted</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {partnershipRequests.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-4 py-5 text-center text-sm text-slate-500">
+                            No partnership requests yet.
+                          </td>
+                        </tr>
+                      ) : partnershipRequests.map((request) => (
+                        <tr key={request.id} className="hover:bg-indigo-50/40">
+                          <td className="px-4 py-3 text-sm text-slate-700">{request.name}</td>
+                          <td className="px-4 py-3 text-sm text-slate-700">{request.email}</td>
+                          <td className="px-4 py-3 text-sm text-slate-700">{request.organization || "—"}</td>
+                          <td className="px-4 py-3 text-sm text-slate-700 max-w-xl truncate">{request.message || "—"}</td>
+                          <td className="px-4 py-3 text-sm text-slate-700">{request.created_at ? new Date(request.created_at).toLocaleDateString() : "N/A"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
               {/* Latest Uploads and table */}
               <section className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
                 <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
