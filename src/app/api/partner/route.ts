@@ -9,6 +9,23 @@ const getSupabaseAdmin = () => {
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 
+const ensurePartnershipRequestsTable = async (supabaseAdmin: ReturnType<typeof createClient>) => {
+  const createTableSql = `
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    CREATE TABLE IF NOT EXISTS public.partnership_requests (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      name text NOT NULL,
+      email text NOT NULL,
+      organization text,
+      message text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+  `
+
+  const { error } = await supabaseAdmin.rpc("exec_sql", { sql: createTableSql })
+  return error
+}
+
 export async function POST(request: NextRequest) {
   if (!supabaseUrl || !supabaseServiceKey) {
     return NextResponse.json(
@@ -40,14 +57,46 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { error: dbError } = await supabaseAdmin.from("partnership_requests").insert({
-      name,
-      email,
-      organization: organization || null,
-      message,
-    })
+    const insertRequest = async () => {
+      return supabaseAdmin.from("partnership_requests").insert({
+        name,
+        email,
+        organization: organization || null,
+        message,
+      })
+    }
+
+    const { error: dbError } = await insertRequest()
 
     if (dbError) {
+      const isMissingTable =
+        dbError.message?.includes("schema cache") ||
+        dbError.message?.includes("Could not find the table") ||
+        dbError.details?.includes("Could not find the table")
+
+      if (isMissingTable) {
+        console.warn("partnership_requests table missing, attempting to create it...")
+        const tableError = await ensurePartnershipRequestsTable(supabaseAdmin)
+
+        if (!tableError) {
+          const { error: retryError } = await insertRequest()
+          if (!retryError) {
+            return NextResponse.json({ success: true })
+          }
+          console.error("Retry insert failed after creating table:", retryError)
+          return NextResponse.json(
+            { error: retryError.message || retryError.details || "Unable to save partnership request after creating table." },
+            { status: 500 }
+          )
+        }
+
+        console.error("Failed to create partnership_requests table:", tableError)
+        return NextResponse.json(
+          { error: tableError.message || tableError.details || "Unable to create partnership_requests table." },
+          { status: 500 }
+        )
+      }
+
       console.error("Failed to save partnership request:", dbError)
       return NextResponse.json(
         { error: dbError.message || dbError.details || "Unable to save partnership request." },
