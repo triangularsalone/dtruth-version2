@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (dbError) {
       console.error("Failed to save partnership request:", dbError)
       return NextResponse.json(
-        { error: "Unable to save partnership request." },
+        { error: dbError.message || dbError.details || "Unable to save partnership request." },
         { status: 500 }
       )
     }
