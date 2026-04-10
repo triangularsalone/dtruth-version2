@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -62,6 +62,11 @@ export default function Register() {
     }
 
     try {
+      const supabase = getSupabaseClient()
+      if (!supabase) {
+        throw new Error('Supabase client is not configured')
+      }
+
       // Sign up with Supabase Auth (email confirmation enabled by default)
       const { data, error: authError } = await supabase.auth.signUp({
         email: formData.email,

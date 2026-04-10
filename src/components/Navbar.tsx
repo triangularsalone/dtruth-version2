@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -17,6 +17,12 @@ export default function Navbar() {
   useEffect(() => {
     const checkUser = async () => {
       try {
+        const supabase = getSupabaseClient()
+        if (!supabase) {
+          console.error("Supabase client is not configured")
+          return
+        }
+
         const { data } = await supabase.auth.getUser();
         setUser(data?.user || null);
       } catch (error) {
@@ -32,6 +38,12 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   const handleLogout = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      console.error("Supabase client is not configured")
+      return
+    }
+
     await supabase.auth.signOut();
     setUser(null);
     router.push("/login");

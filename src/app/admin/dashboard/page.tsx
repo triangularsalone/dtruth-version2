@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import type { UserResponse } from '@supabase/supabase-js'
 
 type UserRole = "super_admin" | "admin" | "viewer"
@@ -42,6 +42,7 @@ type UserRow = {
 
 export default function Dashboard() {
   const router = useRouter()
+  const supabase = getSupabaseClient()!
 
   const [checkingUser, setCheckingUser] = useState(true)
   const [user, setUser] = useState<{ id?: string; email?: string } | null>(null)

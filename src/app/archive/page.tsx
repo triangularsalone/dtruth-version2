@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
 import ArchiveCard from "@/components/ArchiveCard"
 
@@ -27,6 +27,13 @@ export default function Archive() {
 
   const loadEntries = async () => {
     setLoading(true)
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      console.error("Supabase client is not configured")
+      setLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase
         .from("entries")

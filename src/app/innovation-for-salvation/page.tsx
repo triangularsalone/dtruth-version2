@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
 
 type Entry = {
@@ -23,6 +23,13 @@ export default function InnovationForSalvation() {
   }, [])
 
   const loadEntries = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      console.error("Supabase client is not configured")
+      setLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase
         .from("entries")

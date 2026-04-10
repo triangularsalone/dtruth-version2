@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import { useState } from "react"
 
 export default function AdminSidebar() {
@@ -14,6 +14,12 @@ export default function AdminSidebar() {
   if (pathname && pathname.startsWith("/admin/login")) return null
 
   const handleLogout = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      console.error("Supabase client is not configured")
+      return
+    }
+
     try {
       await supabase.auth.signOut()
       router.push("/")

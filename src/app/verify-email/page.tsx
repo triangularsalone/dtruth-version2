@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 
 export default function VerifyEmailPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -11,6 +11,14 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     const handleEmailVerification = async () => {
+      const supabase = getSupabaseClient()
+      if (!supabase) {
+        console.error('Supabase client is not configured')
+        setStatus('error')
+        setMessage('Unable to verify email at this time.')
+        return
+      }
+
       try {
         // Try to process the Supabase auth callback from the URL first.
         const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true })

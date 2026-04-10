@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({

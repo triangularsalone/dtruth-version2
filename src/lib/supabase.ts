@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // Fallback to non-public env names for local testing / utilities, if needed.
 const supabaseUrl =
@@ -6,10 +6,12 @@ const supabaseUrl =
 const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "SUPABASE env vars are required: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"
-  );
-}
+let activeSupabaseClient: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const getSupabaseClient = () => {
+  if (activeSupabaseClient) return activeSupabaseClient;
+  if (!supabaseUrl || !supabaseAnonKey) return null;
+  activeSupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+  return activeSupabaseClient;
+};
+

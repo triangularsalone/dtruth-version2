@@ -6,7 +6,7 @@ import ArchiveCard from "@/components/ArchiveCard"
 import HeroText from "@/components/HeroText"
 import LeadershipSection from "@/components/LeadershipSection"
 import CallToActionSection from "@/components/CallToActionSection"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 
 type Entry = {
   id: string
@@ -24,6 +24,13 @@ export default function Home() {
   useEffect(() => {
     const loadEntries = async () => {
       setLoading(true)
+      const supabase = getSupabaseClient()
+      if (!supabase) {
+        console.error("Supabase client is not configured")
+        setLoading(false)
+        return
+      }
+
       try {
         const { data, error } = await supabase
           .from("entries")

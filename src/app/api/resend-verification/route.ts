@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json()
     if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 })
+
+    const supabase = getSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase client is not configured' },
+        { status: 500 }
+      )
+    }
 
     // Use Supabase's built-in resend functionality
     const { error } = await supabase.auth.resend({

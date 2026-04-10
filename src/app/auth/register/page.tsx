@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -62,6 +62,11 @@ export default function RegisterPage() {
     }
 
     try {
+      const supabase = getSupabaseClient()
+      if (!supabase) {
+        throw new Error('Supabase client is not configured')
+      }
+
       // Sign up with Supabase Auth (email confirmation enabled by default)
       const { data, error: authError } = await supabase.auth.signUp({
         email: formData.email,

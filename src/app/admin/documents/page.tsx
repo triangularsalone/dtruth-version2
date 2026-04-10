@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 
 type Entry = {
   id: string
@@ -18,6 +18,7 @@ type Entry = {
 
 export default function DocumentsPage() {
   const router = useRouter()
+  const supabase = getSupabaseClient()!
 
   const [checkingUser, setCheckingUser] = useState(true)
   const [user, setUser] = useState<{ id?: string; email?: string } | null>(null)
