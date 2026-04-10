@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type ChangeEvent, type FormEvent } from "react"
+import Link from "next/link"
 
 type FormState = {
   name: string
@@ -118,7 +119,10 @@ export default function PartnerPage() {
 
             {status === "success" && (
               <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-                Thank you! Your partnership request has been saved. The admin team will review it and you can check the status at <a href="/partner/status" className="font-semibold underline">/partner/status</a>.
+                <p>Thank you! Your partnership request has been saved. The admin team will review it.</p>
+                <Link href="/partner/status" className="mt-3 inline-flex rounded-full bg-emerald-600 px-5 py-3 text-white shadow hover:bg-emerald-500">
+                  Check request status
+                </Link>
               </div>
             )}
 

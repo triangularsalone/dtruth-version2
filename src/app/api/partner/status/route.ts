@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       .eq("email", email)
       .order("created_at", { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (error) {
       return NextResponse.json({ error: error.message || "Unable to load partnership request." }, { status: 500 })
