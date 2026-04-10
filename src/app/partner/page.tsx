@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ChangeEvent, type FormEvent } from "react"
 
 type FormState = {
   name: string
@@ -19,11 +19,11 @@ export default function PartnerPage() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle")
   const [error, setError] = useState<string>("")
 
-  const handleChange = (field: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (field: keyof FormState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((current) => ({ ...current, [field]: event.target.value }))
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError("")
     setStatus("sending")
@@ -118,7 +118,7 @@ export default function PartnerPage() {
 
             {status === "success" && (
               <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-                Thank you! Your partnership request has been saved in Supabase and we will contact you shortly.
+                Thank you! Your partnership request has been saved. The admin team will review it and you can check the status at <a href="/partner/status" className="font-semibold underline">/partner/status</a>.
               </div>
             )}
 

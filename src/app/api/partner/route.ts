@@ -95,6 +95,9 @@ export async function POST(request: NextRequest) {
         email,
         organization: organization || null,
         message,
+        status: "pending",
+        admin_message: null,
+        next_step_url: null,
       })
     }
 

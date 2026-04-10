@@ -28,6 +28,9 @@ type PartnershipRequest = {
   email: string
   organization?: string
   message?: string
+  status?: "pending" | "approved" | "declined"
+  admin_message?: string
+  next_step_url?: string
   created_at?: string
 }
 
@@ -200,7 +203,7 @@ export default function Dashboard() {
     try {
       const { data, count, error } = await supabase
         .from("partnership_requests")
-        .select("id, name, email, organization, message, created_at", { count: "exact" })
+        .select("id, name, email, organization, message, status, admin_message, next_step_url, created_at", { count: "exact" })
         .order("created_at", { ascending: false })
         .limit(10)
 
@@ -212,6 +215,39 @@ export default function Dashboard() {
       setPartnershipRequestsCount(count || 0)
     } catch (err: any) {
       console.error("Unable to load partnership requests:", err)
+    }
+  }
+
+  const handlePartnershipAction = async (id: string, action: "approve" | "decline", email: string) => {
+    setActionError("")
+    setActionMessage("")
+    setIsActionLoading(true)
+
+    try {
+      const response = await fetch(`/api/admin/partnership/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          adminMessage:
+            action === "approve"
+              ? "Approved. Please continue to the next steps for training and materials purchasing."
+              : "Not approved at this time. Thank you for your interest.",
+          nextStepUrl: action === "approve" ? `/partner/next-steps?email=${encodeURIComponent(email)}` : null,
+        }),
+      })
+
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json.error || "Unable to update partnership request status.")
+      }
+
+      setActionMessage(`Request ${action === "approve" ? "approved" : "declined"} successfully.`)
+      await loadPartnershipRequests()
+    } catch (err: any) {
+      setActionError(err.message || "Unable to update partnership request status.")
+    } finally {
+      setIsActionLoading(false)
     }
   }
 
@@ -563,7 +599,9 @@ export default function Dashboard() {
                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Organization</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Submitted</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
@@ -579,13 +617,43 @@ export default function Dashboard() {
                           <td className="px-4 py-3 text-sm text-slate-700">{request.email}</td>
                           <td className="px-4 py-3 text-sm text-slate-700">{request.organization || "—"}</td>
                           <td className="px-4 py-3 text-sm text-slate-700 max-w-xl truncate">{request.message || "—"}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${request.status === "approved" ? "bg-emerald-100 text-emerald-700" : request.status === "declined" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}>
+                              {request.status || "pending"}
+                            </span>
+                          </td>
                           <td className="px-4 py-3 text-sm text-slate-700">{request.created_at ? new Date(request.created_at).toLocaleDateString() : "N/A"}</td>
+                          <td className="px-4 py-3 text-right text-sm font-medium flex flex-wrap justify-end gap-2">
+                            <button
+                              type="button"
+                              disabled={request.status === "approved"}
+                              onClick={() => handlePartnershipAction(request.id, "approve", request.email)}
+                              className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              disabled={request.status === "declined"}
+                              onClick={() => handlePartnershipAction(request.id, "decline", request.email)}
+                              className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Decline
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               </section>
+
+              {actionError && (
+                <div className="rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-800">{actionError}</div>
+              )}
+              {actionMessage && (
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">{actionMessage}</div>
+              )}
 
               {/* Latest Uploads and table */}
               <section className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">

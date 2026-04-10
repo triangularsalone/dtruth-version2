@@ -1,51 +1,64 @@
-import sendgrid from '@sendgrid/mail'
+import { createClient } from "@supabase/supabase-js"
 
-const { SENDGRID_API_KEY, EMAIL_FROM, NOTIFICATION_EMAIL_TO } = process.env
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const nextBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || ""
 
-if (!SENDGRID_API_KEY || !EMAIL_FROM) {
-  console.warn(
-    'Missing SendGrid email configuration. Partnership notification emails will not be sent.'
-  )
-} else {
-  sendgrid.setApiKey(SENDGRID_API_KEY)
+const getSupabaseAdmin = () => {
+  if (!supabaseUrl || !supabaseServiceKey) return null
+  return createClient(supabaseUrl, supabaseServiceKey)
 }
 
-export async function sendPartnershipNotificationEmail(payload: {
+const normalizeRedirectUrl = (path: string) => {
+  if (!nextBaseUrl) return path
+  return `${nextBaseUrl.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`
+}
+
+export async function sendPartnershipDecisionEmail(payload: {
+  recipientEmail: string
   name: string
-  email: string
-  organization?: string
-  message: string
+  status: "approved" | "declined"
+  nextStepUrl?: string | null
+  adminMessage?: string | null
 }) {
-  if (!SENDGRID_API_KEY || !EMAIL_FROM) {
-    console.warn('Skipping partnership notification email because SendGrid is not configured.')
+  const supabaseAdmin = getSupabaseAdmin()
+  if (!supabaseAdmin) {
+    console.warn("Skipping partnership decision email because Supabase admin client is not configured.")
     return
   }
 
-  const recipient = NOTIFICATION_EMAIL_TO || EMAIL_FROM
-  const subject = 'New partnership request received'
-  const html = `
-    <div style="font-family:Arial, sans-serif; color:#111827;">
-      <h1 style="font-size:20px;">New Partnership Request</h1>
-      <p>A new partnership request has been submitted on your website.</p>
-      <ul style="list-style-type:none; padding:0;">
-        <li><strong>Name:</strong> ${payload.name}</li>
-        <li><strong>Email:</strong> ${payload.email}</li>
-        <li><strong>Organization:</strong> ${payload.organization || 'N/A'}</li>
-      </ul>
-      <h2 style="font-size:16px;">Message</h2>
-      <p style="white-space:pre-wrap;">${payload.message}</p>
-    </div>
-  `
+  const redirectTo = payload.nextStepUrl
+    ? normalizeRedirectUrl(payload.nextStepUrl)
+    : normalizeRedirectUrl(`/partner/status?email=${encodeURIComponent(payload.recipientEmail)}`)
 
-  const text = `New Partnership Request\n\nName: ${payload.name}\nEmail: ${payload.email}\nOrganization: ${payload.organization || 'N/A'}\n\nMessage:\n${payload.message}`
+  if (payload.status === "approved") {
+    const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(payload.recipientEmail, {
+      redirectTo,
+    })
 
-  const msg = {
-    to: recipient,
-    from: EMAIL_FROM as string,
-    subject,
-    text,
-    html,
+    if (error) {
+      console.warn("Supabase invite email failed, falling back to magic link:", error)
+      const { error: fallbackError } = await supabaseAdmin.auth.admin.generateLink({
+        email: payload.recipientEmail,
+        type: "magiclink",
+        options: { redirectTo },
+      })
+      if (fallbackError) {
+        console.error("Fallback magic link email failed:", fallbackError)
+        throw fallbackError
+      }
+    }
+    return
   }
 
-  await sendgrid.send(msg)
+  const { error } = await supabaseAdmin.auth.admin.generateLink({
+    email: payload.recipientEmail,
+    type: "magiclink",
+    options: { redirectTo },
+  })
+
+  if (error) {
+    console.error("Supabase magic link email failed:", error)
+    throw error
+  }
 }
