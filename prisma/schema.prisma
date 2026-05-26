@@ -12,6 +12,7 @@ model User {
   id                       String   @id @default(cuid())
   email                    String   @unique
   password                 String
+  role                     String   @default("viewer")
   emailVerified            Boolean  @default(false)
   verificationToken        String?  @db.VarChar(255)
   verificationTokenExpires DateTime?
